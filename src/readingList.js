@@ -21,7 +21,7 @@ class ReadingList {
       const action = this.prompt('> ').trim()
       switch (action) {
         case 'v':
-          console.log('view books')
+          this.viewBooks()
           break
         case 'a':
           console.log('add book')
@@ -34,6 +34,12 @@ class ReadingList {
           break
       }
     }
+  }
+
+  viewBooks() {
+    console.log(`\ntitle | authors | publisher\n————— | —————–– | –––––––––`)
+    this.books.forEach((book) => console.log(book.display))
+    this.prompt('\nPress any key to continue...')
   }
 }
 
