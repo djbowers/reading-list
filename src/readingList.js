@@ -117,4 +117,8 @@ class ReadingList {
   }
 }
 
+process.on('exit', () => {
+  console.log('\nThanks for using your Reading List, have a great day!\n')
+})
+
 module.exports = ReadingList
