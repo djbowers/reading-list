@@ -1,20 +1,15 @@
 {
   "name": "reading-list",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Reading List command line application, powered by Google Books",
+  "main": "src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/index.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/djbowers/reading-list.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/djbowers/reading-list/issues"
-  },
-  "homepage": "https://github.com/djbowers/reading-list#readme"
+  "author": "DJ Bowers",
+  "license": "ISC"
 }
