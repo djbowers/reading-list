@@ -13,6 +13,7 @@
   "author": "DJ Bowers",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.19.2",
     "prompt-sync": "^4.2.0"
   }
 }
