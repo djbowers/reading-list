@@ -1,5 +1,6 @@
 const events = require('events')
 const axios = require('axios').default
+const inquirer = require('inquirer')
 const prompt = require('prompt-sync')
 
 const { MAIN_PROMPT, ADD_BOOK_PROMPT } = require('./prompts')
@@ -55,8 +56,10 @@ class ReadingList {
 
     this.getBooks(query)
       .then((books) => {
-        this.books.push(...books)
-        this.eventEmitter.emit('added book')
+        this.selectBook(books).then((book) => {
+          this.books.push(book)
+          this.eventEmitter.emit('added book', book)
+        })
       })
       .catch((error) => {
         console.log(error)
@@ -66,7 +69,8 @@ class ReadingList {
     this.isWaiting = true
   }
 
-  addedBookHandler = () => {
+  addedBookHandler = (book) => {
+    console.log(`\nAdded Book to Reading List: ${book.title}`)
     this.isWaiting = false
     this.prompt('\nPress any key to continue...')
     this.continue()
@@ -96,6 +100,20 @@ class ReadingList {
     } catch (error) {
       console.error(error)
     }
+  }
+
+  async selectBook(books) {
+    const header = `title | authors | publisher\n  ————— | —————–– | –––––––––\n `
+    const question = {
+      type: 'list',
+      name: 'choice',
+      message: header,
+      choices: books.map((book) => book.display),
+    }
+    console.log(ADD_BOOK_PROMPT)
+    return inquirer
+      .prompt([question])
+      .then((answers) => books.find((book) => book.display === answers.choice))
   }
 }
 
