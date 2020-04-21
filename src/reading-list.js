@@ -1,5 +1,5 @@
-const inquirer = require('inquirer')
 const { searchGoogleBooks } = require('./google-books')
+const { listPrompt, inputPrompt } = require('./prompts')
 
 class ReadingList {
   constructor() {
@@ -12,59 +12,39 @@ class ReadingList {
     this.mainMenu()
   }
 
-  mainMenu() {
-    const options = {
+  async mainMenu() {
+    const menuOptions = {
       viewList: 'View Reading List',
       addBook: 'Add a Book',
       exit: 'Exit Reading List',
     }
 
-    const question = {
-      type: 'list',
-      name: 'choice',
-      message: 'What would you like to do?',
-      choices: Object.values(options),
+    const { choice } = await listPrompt(
+      'What would you like to do?',
+      Object.values(menuOptions)
+    )
+
+    switch (choice) {
+      case menuOptions.viewList:
+        this.viewList()
+        break
+
+      case menuOptions.addBook:
+        this.addBook()
+        break
+
+      case menuOptions.exit:
+        process.exit(0)
+
+      default:
+        console.log('Error: closing Reading List')
+        process.exit(2)
     }
-
-    inquirer
-      .prompt([question])
-      .then(({ choice }) => {
-        switch (choice) {
-          case options.viewList:
-            this.viewList()
-            break
-
-          case options.addBook:
-            this.addBook()
-            break
-
-          case options.exit:
-            process.exit(0)
-
-          default:
-            console.log('Error: closing Reading List')
-            process.exit(2)
-        }
-      })
-      .catch((error) => console.log(error))
   }
 
-  returnToMain() {
-    const question = {
-      type: 'list',
-      name: 'choice',
-      message: 'Return to main menu?',
-      choices: ['Yes', 'No'],
-    }
-
-    inquirer
-      .prompt([question])
-      .then(({ choice }) => {
-        choice === 'Yes' ? this.mainMenu() : process.exit(0)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
+  async returnToMain() {
+    const { choice } = await listPrompt('Return to main menu?', ['Yes', 'No'])
+    choice === 'Yes' ? this.mainMenu() : process.exit(0)
   }
 
   viewList() {
@@ -73,24 +53,18 @@ class ReadingList {
     this.returnToMain()
   }
 
-  addBook() {
-    const question = {
-      type: 'input',
-      name: 'query',
-      message: 'Enter a term to search for in the Google Books library.\n>',
+  async addBook() {
+    const { query } = await inputPrompt(
+      'Enter a term to search for in the Google Books library.\n>'
+    )
+    const books = await this.getBooks(query)
+    const book = await this.selectBook(books)
+    if (book) {
+      this.books.push(book)
+      this.returnToMain()
+    } else {
+      this.mainMenu()
     }
-
-    inquirer
-      .prompt([question])
-      .then(({ query }) => this.getBooks(query))
-      .then((books) => this.selectBook(books))
-      .then((book) => {
-        if (book) {
-          this.books.push(book)
-        }
-      })
-      .catch((error) => console.log(error))
-      .then(() => this.mainMenu())
   }
 
   getBooks(query, results = 5) {
@@ -102,18 +76,14 @@ class ReadingList {
     const returnToMain = 'Return to main menu'
     options.push(returnToMain)
 
-    const question = {
-      type: 'list',
-      name: 'choice',
-      message: `Select a book to add or return to main menu. (${this.header})`,
-      choices: options,
-    }
+    const { choice } = await listPrompt(
+      `Select a book to add or return to main menu. (${this.header})`,
+      options
+    )
 
-    return inquirer.prompt([question]).then(({ choice }) => {
-      return choice === returnToMain
-        ? null
-        : books.find((book) => book.display === choice)
-    })
+    return choice === returnToMain
+      ? null
+      : books.find((book) => book.display === choice)
   }
 }
 
