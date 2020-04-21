@@ -82,11 +82,15 @@ class ReadingList {
 
     inquirer
       .prompt([question])
-      .then((answer) => this.getBooks(answer.query))
+      .then(({ query }) => this.getBooks(query))
       .then((books) => this.selectBook(books))
-      .then((book) => this.books.push(book))
+      .then((book) => {
+        if (book) {
+          this.books.push(book)
+        }
+      })
       .catch((error) => console.log(error))
-      .then(() => this.returnToMain())
+      .then(() => this.mainMenu())
   }
 
   getBooks(query, results = 5) {
@@ -94,16 +98,22 @@ class ReadingList {
   }
 
   async selectBook(books) {
+    const options = books.map((book) => book.display)
+    const returnToMain = 'Return to main menu'
+    options.push(returnToMain)
+
     const question = {
       type: 'list',
       name: 'choice',
-      message: `Select a book to add or return to main menu.\n ${this.header}\n`,
-      choices: books.map((book) => book.display),
+      message: `Select a book to add or return to main menu. (${this.header})`,
+      choices: options,
     }
 
-    return inquirer
-      .prompt([question])
-      .then((answers) => books.find((book) => book.display === answers.choice))
+    return inquirer.prompt([question]).then(({ choice }) => {
+      return choice === returnToMain
+        ? null
+        : books.find((book) => book.display === choice)
+    })
   }
 }
 
