@@ -1,5 +1,5 @@
 const inquirer = require('inquirer')
-const { searchGoogleBooks } = require('./googleBooks')
+const { searchGoogleBooks } = require('./google-books')
 
 class ReadingList {
   constructor() {

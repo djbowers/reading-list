@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 
-const ReadingList = require('../src/readingList')
+const ReadingList = require('../src/reading-list')
 
 describe('Reading List', () => {
   describe('getBooks', () => {
