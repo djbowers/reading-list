@@ -4,39 +4,43 @@ const { searchGoogleBooks } = require('./google-books')
 class ReadingList {
   constructor() {
     this.books = []
+    this.header = 'title | authors | publisher'
   }
 
   open() {
-    console.log('\nWelcome to your Reading List, powered by Google Books.')
-    this.prompt_main()
+    console.log('\nWelcome to your Reading List, powered by Google Books.\n')
+    this.mainMenu()
   }
 
-  prompt_main() {
+  mainMenu() {
     const options = {
-      view: 'View Reading List',
-      add: 'Add a Book',
+      viewList: 'View Reading List',
+      addBook: 'Add a Book',
       exit: 'Exit Reading List',
     }
 
     const question = {
       type: 'list',
-      name: 'action',
+      name: 'choice',
       message: 'What would you like to do?',
       choices: Object.values(options),
     }
 
     inquirer
       .prompt([question])
-      .then((answer) => {
-        switch (answer.action) {
-          case options.view:
-            this.viewBooks()
+      .then(({ choice }) => {
+        switch (choice) {
+          case options.viewList:
+            this.viewList()
             break
-          case options.add:
+
+          case options.addBook:
             this.addBook()
             break
+
           case options.exit:
             process.exit(0)
+
           default:
             console.log('Error: closing Reading List')
             process.exit(2)
@@ -45,18 +49,35 @@ class ReadingList {
       .catch((error) => console.log(error))
   }
 
-  viewBooks() {
-    console.log(`\ntitle | authors | publisher\n————— | —————–– | –––––––––`)
+  returnToMain() {
+    const question = {
+      type: 'list',
+      name: 'choice',
+      message: 'Return to main menu?',
+      choices: ['Yes', 'No'],
+    }
+
+    inquirer
+      .prompt([question])
+      .then(({ choice }) => {
+        choice === 'Yes' ? this.mainMenu() : process.exit(0)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  viewList() {
+    console.log(this.header)
     this.books.forEach((book) => console.log(book.display))
-    console.log('')
-    this.prompt_main()
+    this.returnToMain()
   }
 
   addBook() {
     const question = {
       type: 'input',
       name: 'query',
-      message: 'Enter a term to search for in the Google Books library.',
+      message: 'Enter a term to search for in the Google Books library.\n>',
     }
 
     inquirer
@@ -65,7 +86,7 @@ class ReadingList {
       .then((books) => this.selectBook(books))
       .then((book) => this.books.push(book))
       .catch((error) => console.log(error))
-      .then(() => this.prompt_main())
+      .then(() => this.returnToMain())
   }
 
   getBooks(query, results = 5) {
@@ -73,12 +94,10 @@ class ReadingList {
   }
 
   async selectBook(books) {
-    const header = `title | authors | publisher\n  ————— | —————–– | –––––––––\n `
-
     const question = {
       type: 'list',
       name: 'choice',
-      message: header,
+      message: `Select a book to add or return to main menu.\n ${this.header}\n`,
       choices: books.map((book) => book.display),
     }
 
