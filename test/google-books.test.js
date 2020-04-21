@@ -1,12 +1,11 @@
 const { expect } = require('chai')
 
-const ReadingList = require('../src/reading-list')
+const { searchGoogleBooks } = require('../src/google-books')
 
-describe('Reading List', () => {
-  describe('getBooks', () => {
+describe('Google Books', () => {
+  describe('searchGoogleBooks', () => {
     it('should get a valid response from the Google Books API', async () => {
-      const readingList = new ReadingList()
-      const books = await readingList.getBooks('code')
+      const books = await searchGoogleBooks('code')
       expect(books).to.have.lengthOf(5)
 
       books.forEach((book) => {
