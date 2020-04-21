@@ -1,5 +1,5 @@
-const axios = require('axios').default
 const inquirer = require('inquirer')
+const { searchGoogleBooks } = require('./googleBooks')
 
 class ReadingList {
   constructor() {
@@ -68,30 +68,8 @@ class ReadingList {
       .then(() => this.prompt_main())
   }
 
-  async getBooks(query, results = 5) {
-    try {
-      const response = await axios.get(
-        `https://www.googleapis.com/books/v1/volumes?q=${query}&printType=books`
-      )
-
-      const books = response.data.items.slice(0, results)
-
-      return books.map((book) => {
-        const title = !!book.volumeInfo.title
-          ? book.volumeInfo.title
-          : 'Unknown Title'
-        const authors = !!book.volumeInfo.authors
-          ? book.volumeInfo.authors
-          : 'Unknown Authors'
-        const publisher = !!book.volumeInfo.publisher
-          ? book.volumeInfo.publisher
-          : 'Unknown Publisher'
-        const display = `${title} | ${authors} | ${publisher}`
-        return { title, authors, publisher, display }
-      })
-    } catch (error) {
-      console.error(error)
-    }
+  getBooks(query, results = 5) {
+    return searchGoogleBooks(query, results)
   }
 
   async selectBook(books) {
