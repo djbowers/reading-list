@@ -1,79 +1,71 @@
-const events = require('events')
 const axios = require('axios').default
 const inquirer = require('inquirer')
-const prompt = require('prompt-sync')
-
-const { MAIN_PROMPT, ADD_BOOK_PROMPT } = require('./prompts')
 
 class ReadingList {
   constructor() {
     this.books = []
-    this.prompt = prompt({ sigint: true })
-    this.eventEmitter = new events.EventEmitter()
-    this.isOpen = false
-    this.isWaiting = false
   }
 
   open() {
     console.log('\nWelcome to your Reading List, powered by Google Books.')
-    this.isOpen = true
-    this.continue()
+    this.prompt_main()
   }
 
-  continue() {
-    while (this.isOpen && !this.isWaiting) {
-      console.log(MAIN_PROMPT)
-      const action = this.prompt('> ').trim()
-      switch (action) {
-        case 'v':
-          this.viewBooks()
-          break
-        case 'a':
-          this.addBook()
-          break
-        case 'q':
-          this.isOpen = false
-          break
-        default:
-          console.log('\nInvalid input, please try again...')
-          break
-      }
+  prompt_main() {
+    const options = {
+      view: 'View Reading List',
+      add: 'Add a Book',
+      exit: 'Exit Reading List',
     }
-    if (this.isWaiting) {
-      console.log('\nWaiting...')
+
+    const question = {
+      type: 'list',
+      name: 'action',
+      message: 'What would you like to do?',
+      choices: Object.values(options),
     }
+
+    inquirer
+      .prompt([question])
+      .then((answer) => {
+        switch (answer.action) {
+          case options.view:
+            this.viewBooks()
+            break
+          case options.add:
+            this.addBook()
+            break
+          case options.exit:
+            process.exit(0)
+          default:
+            console.log('Error: closing Reading List')
+            process.exit(2)
+        }
+      })
+      .catch((error) => console.log(error))
   }
 
   viewBooks() {
     console.log(`\ntitle | authors | publisher\n————— | —————–– | –––––––––`)
     this.books.forEach((book) => console.log(book.display))
-    this.prompt('\nPress any key to continue...')
+    console.log('')
+    this.prompt_main()
   }
 
   addBook() {
-    console.log('\nEnter a term to search for in the Google Books library.\n')
-    const query = this.prompt('> ').trim()
+    const question = {
+      type: 'input',
+      name: 'query',
+      message: 'Enter a term to search for in the Google Books library.',
+    }
 
-    this.getBooks(query)
-      .then((books) => {
-        this.selectBook(books).then((book) => {
-          this.books.push(book)
-          this.eventEmitter.emit('added book', book)
-        })
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-
-    this.eventEmitter.once('added book', this.addedBookHandler)
-    this.isWaiting = true
-  }
-
-  addedBookHandler = (book) => {
-    console.log(`\nAdded Book to Reading List: ${book.title}`)
-    this.isWaiting = false
-    this.prompt('\nPress any key to continue...')
-    this.continue()
+    inquirer
+      .prompt([question])
+      .then((answer) => this.getBooks(answer.query))
+      .then((books) => this.selectBook(books))
+      .then((book) => this.books.push(book))
+      .catch((error) => console.log(error))
+      .then(() => this.prompt_main())
   }
 
   async getBooks(query, results = 5) {
@@ -104,13 +96,14 @@ class ReadingList {
 
   async selectBook(books) {
     const header = `title | authors | publisher\n  ————— | —————–– | –––––––––\n `
+
     const question = {
       type: 'list',
       name: 'choice',
       message: header,
       choices: books.map((book) => book.display),
     }
-    console.log(ADD_BOOK_PROMPT)
+
     return inquirer
       .prompt([question])
       .then((answers) => books.find((book) => book.display === answers.choice))
