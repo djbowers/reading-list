@@ -1,4 +1,4 @@
-const { searchGoogleBooks } = require('./google-books')
+const { searchBooks } = require('./books')
 const { listPrompt, inputPrompt } = require('./prompts')
 
 class ReadingList {
@@ -55,7 +55,7 @@ class ReadingList {
     const { query } = await inputPrompt(
       'Enter a term to search for in the Google Books library.\n>'
     )
-    const books = await this.getBooks(query)
+    const books = await searchBooks(query, 5)
     const book = await this.selectBook(books)
     if (book) {
       this.books.push(book)
@@ -63,10 +63,6 @@ class ReadingList {
     } else {
       this.mainMenu()
     }
-  }
-
-  getBooks(query, results = 5) {
-    return searchGoogleBooks(query, results)
   }
 
   async selectBook(books) {
