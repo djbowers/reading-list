@@ -10,15 +10,15 @@ async function searchGoogleBooks(query, results) {
   const books = response.data.items.slice(0, results)
 
   return books.map((book) => {
-    const title = !!book.volumeInfo.title
+    const title = book.volumeInfo.title
       ? book.volumeInfo.title
       : 'Unknown Title'
 
-    const authors = !!book.volumeInfo.authors
+    const authors = book.volumeInfo.authors
       ? book.volumeInfo.authors
       : 'Unknown Authors'
 
-    const publisher = !!book.volumeInfo.publisher
+    const publisher = book.volumeInfo.publisher
       ? book.volumeInfo.publisher
       : 'Unknown Publisher'
 

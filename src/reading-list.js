@@ -36,9 +36,7 @@ class ReadingList {
       case menuOptions.exit:
         process.exit(0)
 
-      default:
-        console.log('Error: closing Reading List')
-        process.exit(2)
+      // no default
     }
   }
 

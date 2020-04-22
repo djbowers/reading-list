@@ -1,4 +1,4 @@
 const ReadingList = require('./reading-list')
 
-readingList = new ReadingList()
+const readingList = new ReadingList()
 readingList.open()
