@@ -53,16 +53,17 @@ class ReadingList {
 
   async addBook() {
     const { query } = await inputPrompt(
-      'Enter a term to search for in the Google Books library.\n>'
+      'Enter a term to search for in the Google Books library, or press enter to return to main menu.\n>'
     )
-    const books = await searchBooks(query, 5)
-    const book = await this.selectBook(books)
-    if (book) {
-      this.books.push(book)
-      this.returnToMain()
-    } else {
-      this.mainMenu()
+    if (query) {
+      const books = await searchBooks(query, 5)
+      const book = await this.selectBook(books)
+      if (book) {
+        this.books.push(book)
+        return this.returnToMain()
+      }
     }
+    this.mainMenu()
   }
 
   async selectBook(books) {

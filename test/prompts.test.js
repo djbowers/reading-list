@@ -47,5 +47,11 @@ describe('Prompts', () => {
       const { query } = await inputPrompt('enter a search term')
       expect(query).to.equal('foo')
     })
+
+    it('accepts an empty string as a query', async () => {
+      bddStdin('\n')
+      const { query } = await inputPrompt('enter an empty string')
+      expect(query).to.equal('')
+    })
   })
 })
