@@ -10,7 +10,12 @@ class Book {
     this.title = title ? title : 'Unknown Title'
     this.authors = authors ? authors : 'Unknown Authors'
     this.publisher = publisher ? publisher : 'Unknown Publisher'
-    this.display = `${title} | ${authors} | ${publisher}`
+
+    if (Array.isArray(this.authors)) {
+      this.authors = this.authors.join(', ')
+    }
+
+    this.display = `${this.title} | ${this.authors} | ${this.publisher}`
   }
 }
 

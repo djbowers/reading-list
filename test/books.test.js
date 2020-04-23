@@ -42,9 +42,9 @@ describe('Books', () => {
     it('should accept multiple authors', () => {
       const book = new Book('foo', ['bar1', 'bar2'], 'baz')
       expect(book.title).to.equal('foo')
-      expect(book.authors).to.eql(['bar1', 'bar2'])
+      expect(book.authors).to.equal('bar1, bar2')
       expect(book.publisher).to.equal('baz')
-      expect(book.display).to.equal('foo | bar1,bar2 | baz')
+      expect(book.display).to.equal('foo | bar1, bar2 | baz')
     })
 
     it('should accept unknown title', async () => {

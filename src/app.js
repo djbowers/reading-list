@@ -37,10 +37,15 @@ class App {
     choice === options.yes ? this.mainMenu() : process.exit(0)
   }
 
-  viewList() {
+  async viewList() {
     const books = this.readingList.getBooks()
-    this.ui.display(books)
-    this.returnToMain()
+    if (books.length > 0) {
+      this.ui.display(books)
+      this.returnToMain()
+    } else {
+      const { choice, options } = await this.ui.addBookPrompt()
+      choice === options.yes ? this.addBook() : this.mainMenu()
+    }
   }
 
   async addBook() {
@@ -50,6 +55,7 @@ class App {
       const book = await this.selectBook(books)
       if (book) {
         this.readingList.addBook(book)
+        this.ui.addedBook(book)
         return this.returnToMain()
       }
     }

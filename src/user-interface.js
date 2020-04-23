@@ -1,9 +1,7 @@
 const { listPrompt, inputPrompt } = require('./prompts')
 
 class UserInterface {
-  constructor() {
-    this.header = 'title | authors | publisher'
-  }
+  constructor() {}
 
   welcome() {
     console.log('\nWelcome to your Reading List, powered by Google Books.\n')
@@ -11,13 +9,6 @@ class UserInterface {
 
   goodbye() {
     console.log('\nThanks for using your Reading List, have a great day!\n')
-  }
-
-  display(books) {
-    console.log(this.header)
-    books.forEach((book) => {
-      console.log(book.display)
-    })
   }
 
   async mainPrompt() {
@@ -45,6 +36,31 @@ class UserInterface {
     return { choice, options }
   }
 
+  display(books) {
+    console.table(
+      books.map((book) => {
+        const { title, authors, publisher } = book
+        return { title, authors, publisher }
+      })
+    )
+  }
+
+  async addBookPrompt() {
+    const options = {
+      yes: 'Yes',
+      no: 'No',
+    }
+    const { choice } = await listPrompt(
+      'There are no books on your Reading List. Would you like to add one?',
+      Object.values(options)
+    )
+    return { choice, options }
+  }
+
+  addedBook(book) {
+    console.log(`${book.title} has been added to your Reading List.`)
+  }
+
   async searchPrompt() {
     const { query } = await inputPrompt(
       'Enter a term to search for in the Google Books library, or press enter to return to main menu.\n>'
@@ -54,11 +70,11 @@ class UserInterface {
 
   async selectPrompt(books) {
     const options = books.map((book) => book.display)
-    const returnToMain = 'Return to main menu'
+    const returnToMain = '-> Return to main menu'
     options.push(returnToMain)
 
     const { choice } = await listPrompt(
-      `Select a book to add or return to main menu. (${this.header})`,
+      `Select a book to add or return to main menu. (title | author(s) | publisher)`,
       options
     )
 
