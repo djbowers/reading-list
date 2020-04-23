@@ -1,6 +1,6 @@
 class ReadingList {
-  constructor() {
-    this.books = []
+  constructor(books = []) {
+    this.books = books
   }
 
   getBooks() {
