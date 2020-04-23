@@ -1,5 +1,4 @@
 const { searchBooks } = require('./books')
-const { listPrompt, inputPrompt } = require('./prompts')
 
 class App {
   constructor(readingList, userInterface) {
@@ -9,36 +8,23 @@ class App {
 
   start() {
     this.ui.welcome()
-
-    process.on('exit', () => {
-      this.ui.goodbye()
-    })
-
+    process.on('exit', this.ui.goodbye)
     this.mainMenu()
   }
 
   async mainMenu() {
-    const menuOptions = {
-      viewList: 'View Reading List',
-      addBook: 'Add a Book',
-      exit: 'Exit Reading List',
-    }
-
-    const { choice } = await listPrompt(
-      'What would you like to do?',
-      Object.values(menuOptions)
-    )
+    const { choice, options } = await this.ui.mainPrompt()
 
     switch (choice) {
-      case menuOptions.viewList:
+      case options.viewList:
         this.viewList()
         break
 
-      case menuOptions.addBook:
+      case options.addBook:
         this.addBook()
         break
 
-      case menuOptions.exit:
+      case options.exit:
         process.exit(0)
 
       // no default
@@ -46,8 +32,8 @@ class App {
   }
 
   async returnToMain() {
-    const { choice } = await listPrompt('Return to main menu?', ['Yes', 'No'])
-    choice === 'Yes' ? this.mainMenu() : process.exit(0)
+    const { choice, options } = await this.ui.returnPrompt()
+    choice === options.yes ? this.mainMenu() : process.exit(0)
   }
 
   viewList() {
@@ -57,9 +43,7 @@ class App {
   }
 
   async addBook() {
-    const { query } = await inputPrompt(
-      'Enter a term to search for in the Google Books library, or press enter to return to main menu.\n>'
-    )
+    const query = await this.ui.searchPrompt()
     if (query) {
       const books = await searchBooks(query, 5)
       const book = await this.selectBook(books)
@@ -72,14 +56,7 @@ class App {
   }
 
   async selectBook(books) {
-    const options = books.map((book) => book.display)
-    const returnToMain = 'Return to main menu'
-    options.push(returnToMain)
-
-    const { choice } = await listPrompt(
-      `Select a book to add or return to main menu. (${this.header})`,
-      options
-    )
+    const { choice, returnToMain } = await this.ui.selectPrompt(books)
 
     return choice === returnToMain
       ? null
