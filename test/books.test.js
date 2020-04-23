@@ -1,9 +1,9 @@
 const { expect } = require('chai')
 
-const { parseBookData } = require('../src/books')
+const { createBooks, Book } = require('../src/books')
 
 describe('Books', () => {
-  describe('parseBookData', () => {
+  describe('createBooks', () => {
     it('parses book data correctly', async () => {
       const bookData = [
         {
@@ -15,7 +15,7 @@ describe('Books', () => {
         },
       ]
 
-      const books = parseBookData(bookData)
+      const books = createBooks(bookData)
       expect(books).to.have.lengthOf(1)
 
       const book = books[0]
@@ -28,46 +28,37 @@ describe('Books', () => {
       expect(book).to.haveOwnProperty('display')
       expect(book.display).to.equal('foo | bar | baz')
     })
+  })
 
-    it('parses book with unknown title', async () => {
-      const bookData = [
-        {
-          volumeInfo: {
-            title: null,
-            authors: 'bar',
-            publisher: 'baz',
-          },
-        },
-      ]
-      const book = parseBookData(bookData)[0]
+  describe('Book', () => {
+    it('should accept a single author', () => {
+      const book = new Book('foo', 'bar', 'baz')
+      expect(book.title).to.equal('foo')
+      expect(book.authors).to.equal('bar')
+      expect(book.publisher).to.equal('baz')
+      expect(book.display).to.equal('foo | bar | baz')
+    })
+
+    it('should accept multiple authors', () => {
+      const book = new Book('foo', ['bar1', 'bar2'], 'baz')
+      expect(book.title).to.equal('foo')
+      expect(book.authors).to.eql(['bar1', 'bar2'])
+      expect(book.publisher).to.equal('baz')
+      expect(book.display).to.equal('foo | bar1,bar2 | baz')
+    })
+
+    it('should accept unknown title', async () => {
+      const book = new Book(null, 'bar', 'baz')
       expect(book.title).to.equal('Unknown Title')
     })
 
-    it('parses book with unknown authors', async () => {
-      const bookData = [
-        {
-          volumeInfo: {
-            title: 'foo',
-            authors: null,
-            publisher: 'baz',
-          },
-        },
-      ]
-      const book = parseBookData(bookData)[0]
+    it('should accept unknown authors', async () => {
+      const book = new Book('foo', null, 'baz')
       expect(book.authors).to.equal('Unknown Authors')
     })
 
-    it('parses book with unknown publisher', async () => {
-      const bookData = [
-        {
-          volumeInfo: {
-            title: 'foo',
-            authors: 'bar',
-            publisher: null,
-          },
-        },
-      ]
-      const book = parseBookData(bookData)[0]
+    it('should accept unknown publisher', async () => {
+      const book = new Book('foo', 'bar', null)
       expect(book.publisher).to.equal('Unknown Publisher')
     })
   })

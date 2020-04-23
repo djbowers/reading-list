@@ -1,9 +1,10 @@
-const { searchBooks } = require('./books')
+const { createBooks } = require('./books')
 
 class App {
-  constructor(readingList, userInterface) {
+  constructor(readingList, userInterface, googleApi) {
     this.readingList = readingList
     this.ui = userInterface
+    this.api = googleApi
   }
 
   start() {
@@ -45,7 +46,7 @@ class App {
   async addBook() {
     const query = await this.ui.searchPrompt()
     if (query) {
-      const books = await searchBooks(query, 5)
+      const books = await this.searchBooks(query)
       const book = await this.selectBook(books)
       if (book) {
         this.readingList.addBook(book)
@@ -53,6 +54,11 @@ class App {
       }
     }
     this.mainMenu()
+  }
+
+  async searchBooks(query, results = 5) {
+    const bookData = await this.api.requestBooks(query)
+    return createBooks(bookData.slice(0, results))
   }
 
   async selectBook(books) {

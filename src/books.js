@@ -1,13 +1,5 @@
-const GoogleApi = require('./google-api')
-
-async function searchBooks(query, results) {
-  const response = await GoogleApi.requestBooks(query)
-  const bookData = response.data.items.slice(0, results)
-  return parseBookData(bookData)
-}
-
-function parseBookData(books) {
-  return books.map((book) => {
+function createBooks(bookData) {
+  return bookData.map((book) => {
     const { title, authors, publisher } = book.volumeInfo
     return new Book(title, authors, publisher)
   })
@@ -22,4 +14,4 @@ class Book {
   }
 }
 
-module.exports = { searchBooks, parseBookData }
+module.exports = { createBooks, Book }
