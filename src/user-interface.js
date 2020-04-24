@@ -68,6 +68,12 @@ class UserInterface {
     return query
   }
 
+  invalidQuery() {
+    console.log(
+      'The query you entered is invalid. Please enter only letters, numbers, and - _'
+    )
+  }
+
   async selectPrompt(books) {
     const options = books.map((book) => book.display)
     const returnToMain = '-> Return to main menu'

@@ -50,16 +50,27 @@ class App {
 
   async addBook() {
     const query = await this.ui.searchPrompt()
-    if (query) {
-      const books = await this.searchBooks(query)
-      const book = await this.selectBook(books)
-      if (book) {
-        this.readingList.addBook(book)
-        this.ui.addedBook(book)
-        return this.returnToMain()
-      }
+    if (!query) {
+      return this.mainMenu()
     }
-    this.mainMenu()
+    if (!this.isValid(query)) {
+      this.ui.invalidQuery()
+      return this.addBook()
+    }
+
+    const books = await this.searchBooks(query)
+    const book = await this.selectBook(books)
+    if (!book) {
+      return this.mainMenu()
+    }
+
+    this.readingList.addBook(book)
+    this.ui.addedBook(book)
+    this.returnToMain()
+  }
+
+  isValid(query) {
+    return query.match(/^[a-zA-Z0-9_.-]*$/)
   }
 
   async searchBooks(query, results = 5) {
