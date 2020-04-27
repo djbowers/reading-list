@@ -4,26 +4,73 @@ Command line application that allows you to use the Google Books API to search f
 
 ## Getting Started
 
-To run the application, use `npm start`.
+The Reading List application requires `node` and `npm` to be installed on your machine. It has been tested on `node v12.16.0` and `npm v6.13.4` and is not guaranteed to work on earlier versions. You can check to see if you have node installed with `which node` and you can check the version with `node --version`. Similarly, you can check to see if you have npm installed with `which npm` and the version with `npm --version`. If these dependencies are not currently installed, please visit the following resources to install them.
 
-## Tests
+- [node](https://nodejs.org/en/)
+- [npm](https://www.npmjs.com/)
 
-To run the test suite, use `npm test`.
+Once node and npm have been installed, clone the Reading List repository with
+
+`git clone git@github.com:djbowers/reading-list.git`
+
+Next, open the directory and install the application's dependencies with
+
+`cd reading-list/` and `npm install`
+
+Once the dependencies have been installed, run the application with
+
+`npm start`
+
+To execute the test suite, run
+
+`npm test`
 
 ## Approach
 
-Initially, I attempted to write this application using a more functional approach, using promises and recursion to continue asking the user for input. This was working well initially, and I had a test framework set up to write tests using mocha and chai, but I couldn’t quite figure out how to get the control flow to execute properly.
+In the first version of this application, I used various npm modules like `inquirer`, `prompt-sync`, and the built-in `events` module to "get the job done." After review by 8th Light and further inspection, I realized that I had not only violated several of the [SOLID principles](https://medium.com/better-programming/solid-principles-simple-and-easy-explanation-f57d86c47a7f) for software development, but I also had several other more obvious errors such as code duplication and poor naming.
 
-Since I’m newer to functional programming, I decided that instead of pushing forward and risking not finishing in the 5 days, I would start fresh and rewrite the app with OOP. I’m much more familiar with OOP and this allowed me to quickly rebuild the app. I was able to pull most of the core logic from the functional attempt, allowing me to rebuild the app in about half the time.
+For the second version of the app, I decided to break the ReadingList class into several smaller modules and reduce the number of external dependencies. The following architecture emerged:
 
-Unfortunately, because of the time it took me to write the app with OOP, I was unable to get as many tests written for this version. There is one integration test for the Google Books API call, but I'd like to add more.
+- **app**: main application code
+- **books**: deals with the creation of Book objects
+- **google-api**: holds the call to the Google Books API
+- **prompts**: wrapper for `inquirer` prompts
+- **reading-list**: lightweight class to represent the actual Reading List
+- **user-interface**: all console.log, console.table, and prompts to the CLI
+
+My first step in implementing the 8th Light review feedback was to remove the `prompt-sync` module and replace it entirely with `inquirer`.
+
+Next, I moved the single API call in the application, the call to the Google Books API, into its own module, `google-api`.
+
+I then moved all calls to the inquirer package into the `prompts` module to keep them isolated. I also created a separate `user-interface` module to contain all of the UI functionality, including console.log and console.table statements and calls to the `prompts` module. By doing this, I allow for easy extension of the application by swapping out the `user-interface` class with another module, such as a new graphical user interface.
+
+While removing functionality from the `ReadingList` class, I realized that there was actually very little functionality that should remain in the actual `ReadingList`. The only methods that I kept in this class were the ability to get all of the books on the list and to add a book to the list. Everything else was moved to the UI layer, the API layer, or the App itself.
+
+## Testing
+
+This second version of the application currently has 14 tests. Some of these tests, such as those for the `reading-list` and `books` modules, are true unit tests. Others, such as those for the `google-api` and `prompts` modules, are integration tests.
+
+I used `mocha` as my test runner and `chai` for assertions, as well as `nyc` for test coverage. I also used a package called `bdd-stdin` to supply input via stdin to test the `prompts` module.
+
+My next steps in extending the testing suite and covering more of the application with tests would be to write end-to-end tests using the `bdd-stdin` module to exercise the application from start to finish.
+
+In addition, I used the `eslint` module to lint my application for small style offenses.
 
 ## Dependencies
 
-I used three external dependencies in this application. First, I used `axios` for the API call to Google Books. I prefer this over the native `fetch` method because you do not have to explicitly convert the API response to JSON. I also used `prompt-sync` to synchronously get user input, and `inquirer` to allow the user to select a book from a list.
+### Main
 
-In addition to the three primary dependencies, I also used `mocha` to write my tests and `chai` for assertions.
+- node
+- npm
+- axios: used for API calls
+- inquirer: used for user prompts
 
-## Development History
+### Dev
 
-I have included an additional branch called `dev-history` that includes all of the commits I created while building the initial version of this app using a functional approach. The `master` branch contains my modified commit history using an OOP approach.
+The following dependencies are not needed to run the application, just to run the test suite.
+
+- bdd-stdin
+- chai
+- eslint
+- mocha
+- nyc
